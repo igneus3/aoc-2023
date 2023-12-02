@@ -4,9 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"regexp"
 	"strings"
-	"unicode"
 )
 
 func main() {
@@ -18,7 +16,7 @@ func main() {
 
     scanner := bufio.NewScanner(file)
     for scanner.Scan() {
-        result += calibration_value(replace_word_digits(scanner.Text()))
+        result += CalibrationValue(scanner.Text())
     }
     check(scanner.Err())
 
@@ -31,59 +29,56 @@ func check(e error) {
     }
 }
 
-func calibration_value(line string) int {
-    var a, b int = 0, 0
-    var has_a = false
+var chars = "123456789"
+var numberMap = map[string] int {
+    "one": 1,
+    "two": 2,
+    "three": 3,
+    "four": 4,
+    "five": 5,
+    "six": 6,
+    "seven": 7,
+    "eight": 8,
+    "nine": 9,
+}
 
-    for _, ch := range line {
-        if unicode.IsDigit(ch) {
-            if !has_a {
-                a = int(ch - '0')
-                has_a = true
-                continue
+func CalibrationValue(line string) int {
+    first, last := 0, 0
+    firstIdx := strings.IndexAny(line, chars)
+    lastIdx := strings.LastIndexAny(line, chars)
+
+    if firstIdx > -1 {
+        first = int(line[firstIdx] - '0')
+    }
+
+    if lastIdx > -1 {
+        last = int(line[lastIdx] - '0')
+    }
+
+    for k, v := range numberMap {
+        idx := strings.Index(line, k)
+        if idx > -1 && idx < firstIdx {
+            firstIdx = idx
+            first = v
+
+            if last == 0 {
+                last = v
+                lastIdx = idx
             }
+        }
 
-            b = int(ch - '0')
+        idx = strings.LastIndex(line, k)
+        if idx > -1 && idx > lastIdx {
+            lastIdx = idx
+            last = v
+
+            if first == 0 {
+                first = v
+                firstIdx = idx
+            }
         }
     }
 
-    if b == 0 {
-        b = a
-    }
-
-    return a * 10 + b
+    return first * 10 + last
 }
 
-var number_map = map[string] string {
-    "one": "o1ne",
-    "two": "t2wo",
-    "three": "t3hree",
-    "four": "f4our",
-    "five": "f5ive",
-    "six": "s6ix",
-    "seven": "s7even",
-    "eight": "e8ight",
-    "nine": "n9ine",
-}
-
-func replace_word_digits(input string) string {
-    sub_pattern := "one|two|three|four|five|six|seven|eight|nine"
-    r_first := regexp.MustCompile(fmt.Sprintf("(%s).*", sub_pattern))
-    r_last := regexp.MustCompile(fmt.Sprintf(".*(%s)", sub_pattern))
-
-    result := input
-    first_matches := r_first.FindStringSubmatch(result)
-    last_matches := r_last.FindStringSubmatch(result)
-
-    if len(first_matches) > 0 {
-        first := first_matches[1]
-        result = strings.Replace(result, first, number_map[first], 1)
-    }
-
-    if len(last_matches) > 0 {
-        last := last_matches[1]
-        result = strings.ReplaceAll(result, last, number_map[last])
-    }
-
-    return result
-}
