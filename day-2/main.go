@@ -37,33 +37,26 @@ func check(e error) {
 }
 
 func ValidateGame(line string) int {
-    maxCubes := map[string] int {
-        "red": 12,
-        "green": 13,
-        "blue": 14,
+    cubeCount := map[string] int {
+        "red": 0,
+        "green": 0,
+        "blue": 0,
     }
     
     splitLine := strings.Split(line, ":")
     draws := strings.Split(splitLine[1], ";")
 
-    valid := true
     for _, draw := range draws {
         colors := strings.Split(draw, ",")
         for _, color := range colors {
             splitColor := strings.Split(color, " ")
             count, _ := strconv.Atoi(splitColor[1])
             
-            if count > maxCubes[splitColor[2]] {
-                valid = false
+            if count > cubeCount[splitColor[2]] {
+                cubeCount[splitColor[2]] = count
             }
         }
     }
 
-    result := 0
-    if valid {
-        gameId, _ := strconv.Atoi(strings.Split(splitLine[0], " ")[1])
-        result = gameId
-    }
-    
-    return result
+    return cubeCount["red"] * cubeCount["green"] * cubeCount["blue"]
 }
