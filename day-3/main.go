@@ -40,7 +40,8 @@ func SumPartNumbers(input string) int {
                 continue
             }
 
-            if IsSymbol(grid[r][c]) {
+            if IsPossibleGear(grid[r][c]) {
+                numbers := []int{}
                 for _, direction := range directions {
                     row := r + direction[0]
                     col := c + direction[1]
@@ -65,8 +66,12 @@ func SumPartNumbers(input string) int {
                         }
 
                         partNumber, _ := strconv.Atoi(temp)
-                        result += partNumber
+                        numbers = append(numbers, partNumber)
                     }
+                }
+
+                if len(numbers) == 2 {
+                    result += numbers[0] * numbers[1]
                 }
             }
         }
@@ -95,6 +100,6 @@ func IsDot(character string) bool {
     return character == "."
 }
 
-func IsSymbol(character string) bool {
-    return !IsNumber(character) && !IsDot(character)
+func IsPossibleGear(character string) bool {
+    return character == "*"
 }

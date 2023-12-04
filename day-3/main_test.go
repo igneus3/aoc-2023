@@ -17,7 +17,7 @@ func TestSumPartNumbers(t *testing.T) {
 .664.598..` 
 
 
-    want := 4361
+    want := 467835
     got := SumPartNumbers(input)
 
     if got != want {
